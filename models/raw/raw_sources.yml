@@ -7,3 +7,6 @@ sources:
     tables:
       - name: customers_raw
       - name: orders_raw
+      - name: products_raw
+      - name: payments_raw
+      - name: order_items_raw
