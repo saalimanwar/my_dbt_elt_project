@@ -1,6 +1,24 @@
 version: 2
+
 models:
   - name: dim_customers
+    description: "Customer dimension"
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+
+  - name: fct_orders
+    description: "Orders fact"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+
+  - name: sales_summary
+    description: "Sales summary (aggregate)"
     columns:
       - name: customer_id
         tests:

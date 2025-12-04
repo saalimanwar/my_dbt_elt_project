@@ -1,8 +1,79 @@
 version: 2
 
 models:
+
   - name: stg_customers
+    description: "Cleaned customers data"
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+      - name: email
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+
   - name: stg_orders
+    description: "Cleaned orders data"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+      - name: amount
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              max_value: 1000000
+
   - name: stg_products
+    description: "Cleaned product data"
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+          - unique
+      - name: category
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ["Electronics", "Grocery", "Clothing", "Home", "Other"]
+
   - name: stg_payments
+    description: "Cleaned payments data"
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+      - name: payment_amount
+        tests:
+          - dbt_expectations.expect_column_mean_to_be_between:
+              min_value: 1
+              max_value: 1000000
+
   - name: stg_order_items
+    description: "Cleaned order items data"
+    columns:
+      - name: order_item_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+      - name: quantity
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              max_value: 1000
