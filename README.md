@@ -1,148 +1,151 @@
-my_dbt_elt_project
-==================
-A complete end-to-end dbt ELT project built on Snowflake, covering data ingestion, staging, dimensional modeling, fact modeling, marts, custom macros, tests, snapshots (SCD-2), and historical tracking.
+# my_dbt_elt_project
 
-This project was created as part of a multi-assignment learning workflow.
+A complete end-to-end **dbt ELT project** built on **Snowflake**, covering:
 
-Project Structure:
+- Source ingestion  
+- Staging models  
+- Fact & dimension modeling  
+- Data marts  
+- Custom macros  
+- Automated tests  
+- Snapshots (SCD Type-2)  
+- Historical tracking  
+
+This project was developed as part of a multi-assignment learning workflow.
+
+---
+
+## 🚀 Project Structure
 
 my_dbt_elt_project/
 │
 ├── models/
-│   ├── staging/ (stg_ models)
-│   ├── marts/
-│   │   ├── dim_customers.sql
-│   │   ├── fct_orders.sql
-│   │   ├── sales_summary.sql
-│   └── schema.yml
+│ ├── staging/
+│ │ ├── stg_customers.sql
+│ │ ├── stg_orders.sql
+│ │ ├── stg_order_items.sql
+│ │ ├── stg_products.sql
+│ │ └── stg_payments.sql
+│ │
+│ ├── marts/
+│ │ ├── dim_customers.sql
+│ │ ├── fct_orders.sql
+│ │ ├── sales_summary.sql
+│ │ └── schema.yml
 │
 ├── snapshots/
-│   └── customer_snapshot.sql
+│ └── customer_snapshot.sql
 │
 ├── macros/
-│   └── calc_growth.sql
+│ └── calc_growth.sql
 │
-├── seeds/
-├── tests/
 ├── dbt_project.yml
 └── README.md
 
-Assignment Breakdown
-=====================
+yaml
+Copy code
 
-Below is a summary of all tasks completed across the 4 assignments.
+---
 
-Assignment 1 — Build Staging Layer
-Completed Tasks
+# 📚 **Assignment Breakdown**
 
-Created staging models under models/staging/
+## **Assignment 1 — Build Staging Layer**
+### ✅ Completed Tasks
+- Created staging models under `models/staging/`
+- Cleaned & transformed raw source tables
+- Applied column renaming and data type fixes
+- Added `sources.yml` for raw sources
+- Added tests: **not_null, unique, value checks**
 
-Cleaned and transformed raw source tables
-
-Applied column renaming + basic validations
-
-Added source definitions (sources.yml)
-
-Validated staging models with data tests
-
-Files:
+### **Files**
 models/staging/stg_customers.sql
 models/staging/stg_orders.sql
 models/staging/stg_order_items.sql
 models/staging/stg_products.sql
 models/staging/stg_payments.sql
 
-Assignment 2 — Fact & Dimension Models
-Completed Tasks
+yaml
+Copy code
 
-Created dim_customers (dimension)
+---
 
-Created fct_orders (fact table)
+## **Assignment 2 — Dimension & Fact Models**
+### ✅ Completed Tasks
+- Built `dim_customers` (dimension)
+- Built `fct_orders` (fact table)
+- Implemented keys, cleaning, aggregations
+- Added schema tests
 
-Implemented joins, cleaning, ordering
-
-Added not_null & unique tests in schema.yml
-
-Files:
+### **Files**
 models/marts/dim_customers.sql
 models/marts/fct_orders.sql
 models/marts/schema.yml
 
-Assignment 3 — Build Metrics & Aggregations
-Completed Tasks
+yaml
+Copy code
 
-Built aggregated model: sales_summary
+---
 
-Implemented daily totals + customer level totals
+## **Assignment 3 — Aggregations & Custom Macro**
+### ✅ Completed Tasks
+- Created aggregated model `sales_summary`
+- Daily totals + customer-level metrics
+- Window functions (LAG)
+- Built & used custom macro for **% growth**
 
-Introduced a custom macro for % growth calculation
-(daily amount vs previous day)
+### **Macro**
+macros/calc_growth.sql
 
-Files:
+markdown
+Copy code
+
+### **Used in**
 models/marts/sales_summary.sql
-macros/calc_growth.sql
 
-Assignment 4 — Snapshots + SCD Type-2 + Historical Tracking
-Completed Tasks
+yaml
+Copy code
 
-Implemented dbt snapshot to track customer history
+---
 
-Used strategy = 'check' and check_cols = ['name', 'email']
-
-Enabled SCD-2 changes with dbt snapshot
-
-Demonstrated historical record tracking inside Snowflake warehouse
-
-Files:
-snapshots/customer_snapshot.sql
-
-Custom Macro — % Growth Calculation
-
-macros/calc_growth.sql
-
+### 📌 **Custom Macro Example**
+```sql
 {% macro calc_growth(current, previous) %}
     case 
         when {{ previous }} = 0 or {{ previous }} is null then null
         else round((( {{ current }} - {{ previous }} ) / {{ previous }} ) * 100, 2)
     end
 {% endmacro %}
+Assignment 4 — Snapshots (SCD-2) & Historical Tracking
+✅ Completed Tasks
+Implemented SCD-2 snapshot on customers
 
+Used check strategy for change detection
 
-Used inside sales_summary.sql:
+Tracks changes in:
 
-{{ calc_growth('daily_amount', 'prev_day_amount') }} as daily_growth_pct
+name
 
-Testing
-Included Tests
+email
 
-- not_null
-- unique
-- dbt_expectations tests
-- source freshness tests
-- integrity checks on all staging + fact + dimension models
+Enabled historical tracking in Snowflake
 
-Run tests using:
-
-dbt test
-
-Final output: PASS = 25/25
-
-Snapshots (SCD-2)
-
-Snapshot logic:
-
+Snapshot File
+bash
+Copy code
+snapshots/customer_snapshot.sql
+📌 Snapshot Definition
+sql
+Copy code
 {% snapshot customer_snapshot %}
 
-{{
-    config(
-        target_schema='snapshots',
-        unique_key='id',
-        strategy='check',
-        check_cols=['name', 'email']
-    )
-}}
+{{ config(
+    target_schema='snapshots',
+    unique_key='id',
+    strategy='check',
+    check_cols=['name', 'email']
+) }}
 
-select
+select 
     id,
     name,
     email,
@@ -150,27 +153,50 @@ select
 from {{ source('raw', 'customers_raw') }}
 
 {% endsnapshot %}
+🧪 Testing Summary
+Tests Implemented:
+not_null
 
+unique
 
-Run snapshot:
+dbt_expectations tests
 
-dbt snapshot
+Source freshness tests
 
-How to Run This Project
+Integrity checks across:
 
-1) Install packages
-dbt deps
+staging models
 
-2) Run models
-dbt run
+dimensions
 
-3) Run tests
+fact tables
+
+marts
+
+Run Tests:
+bash
+Copy code
 dbt test
-
-4) Run snapshots
+Final Result:
+ini
+Copy code
+PASS = 25 / 25 tests
+▶️ How to Run This Project
+1️⃣ Install dependencies
+bash
+Copy code
+dbt deps
+2️⃣ Run all models
+bash
+Copy code
+dbt run
+3️⃣ Run tests
+bash
+Copy code
+dbt test
+4️⃣ Run snapshots (SCD-2)
+bash
+Copy code
 dbt snapshot
-
-Repository
-
-GitHub Link:
-https://github.com/saalimanwar/my_dbt_elt_project
+🗂️ Repository
+GitHub: https://github.com/saalimanwar/my_dbt_elt_project
