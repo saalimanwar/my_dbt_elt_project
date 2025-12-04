@@ -20,6 +20,7 @@ models:
   - name: sales_summary
     description: "Sales summary (aggregate)"
     columns:
-      - name: customer_id
-        tests:
-          - not_null
+    - name: order_date
+      tests:
+        - not_null
+        

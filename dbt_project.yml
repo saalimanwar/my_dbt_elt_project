@@ -30,3 +30,6 @@ models:
 
     raw:
       +schema: RAW
+
+snapshots:
+  +schema: SNAPSHOTS      
